@@ -3,6 +3,20 @@ body {
     overflow: hidden;
 }
 
+::-webkit-scrollbar {
+    background: currentcolor;
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: currentcolor;
+}
+::-webkit-scrollbar-thumb {
+    background: #fff;
+    border-radius: 10px;
+}
+
+
+
 .stars-container {
     position: absolute;
     width: 100%;

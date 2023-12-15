@@ -15,17 +15,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-document.addEventListener('scroll', function(){
-    function handleScroll() {
-        const scrollY = window.scrollY;
+window.addEventListener('scroll', function(){
+    console.log("Test");
+    const scrollY = window.scrollY;
 
-        // Adjust the stretching based on the scroll position
-        const stretchFactor = 1 + scrollY / 500;
+    // Adjust the stretching based on the scroll position
+    const stretchFactor = 1 + scrollY / 500;
 
-        // Apply the stretching effect to each star
-        const stars = document.querySelectorAll(".star");
-        stars.forEach((star) => {
-            star.style.height = `${20 * stretchFactor}px`;
-        });
-    }
-});
+    // Apply the stretching effect to each star
+    const stars = document.querySelectorAll(".star");
+    stars.forEach((star) => {
+        star.style.height = `${20 * stretchFactor}px`;
+    });
+    
+}, false);

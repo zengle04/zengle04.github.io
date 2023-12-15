@@ -1,3 +1,6 @@
+var offsetStart = 0;
+var offsetEnd = 0;
+
 document.addEventListener("DOMContentLoaded", function () {
     const starsContainer = document.getElementById("stars-container");
 
@@ -15,11 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-var offsetStart = 0;
-var offsetEnd = 0;
-
 window.addEventListener('scroll', () => {
-    document.documentElement.style.setProperty('--scroll', (
-    window.scrollY - offsetStart) / (document.body.offsetHeight - 
-    offsetStart - offsetEnd - window.innerHeight));
+  document.documentElement.style.setProperty('--scroll', ( window.scrollY - offsetStart ) / 
+  ( document.body.offsetHeight - offsetStart - offsetEnd - window.innerHeight ));
 }, false);

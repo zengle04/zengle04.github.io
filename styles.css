@@ -15,8 +15,6 @@ body {
     border-radius: 10px;
 }
 
-
-
 .stars-container {
     position: absolute;
     width: 100%;
@@ -30,22 +28,4 @@ body {
     position: absolute;
     background-color: white;
     border-radius: 50%;
-    animation: stretch 1s linear;
-}
-
-@keyframes stretch {
-    0% {
-        width: 2px;
-        height: 2px;
-    }
-    100% {
-        width: 2px;
-        height: 50px;
-    }
-}
-
-:root * {
-    animation-play-state: paused;
-    animation-delay: calc(var(--scroll) * -1s);
-
 }

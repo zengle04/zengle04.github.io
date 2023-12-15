@@ -10,12 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
         starsContainer.appendChild(star);
     }
 
-    // Create initial stars
-    for (let i = 0; i < 100; i++) {
-        createStar();
-    }
-
-
     function handleScroll() {
         const scrollY = window.scrollY;
 
@@ -30,5 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 // Add scroll event listener
+        // Create initial stars
+    for (let i = 0; i < 100; i++) {
+        createStar();
+    }
     window.addEventListener("scroll", handleScroll);
 });

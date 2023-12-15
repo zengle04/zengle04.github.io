@@ -1,7 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     const starsContainer = document.getElementById("stars-container");
-
     function createStar() {
         const star = document.createElement("div");
         star.className = "star";
@@ -9,7 +8,14 @@ document.addEventListener("DOMContentLoaded", function () {
         star.style.top = `${Math.random() * 100}vh`;
         starsContainer.appendChild(star);
     }
+    // Add scroll event listener
+    // Create initial stars
+    for (let i = 0; i < 100; i++) {
+        createStar();
+    }
+});
 
+document.addEventListener('scroll', function(){
     function handleScroll() {
         const scrollY = window.scrollY;
 
@@ -22,11 +28,4 @@ document.addEventListener("DOMContentLoaded", function () {
             star.style.height = `${20 * stretchFactor}px`;
         });
     }
-
-// Add scroll event listener
-        // Create initial stars
-    for (let i = 0; i < 100; i++) {
-        createStar();
-    }
-    window.addEventListener("scroll", handleScroll);
 });

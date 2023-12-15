@@ -1,20 +1,6 @@
 body {
     margin: 0;
     overflow: hidden;
-    background-color: black;
-}
-
-::-webkit-scrollbar {
-    background: rgb(0, 0, 0);
-    width: 10px;
-}
-::-webkit-scrollbar-track {
-    background: black;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb {
-    background: #1a0061;
-    border-radius: 10px;
 }
 
 .stars-container {
@@ -30,4 +16,6 @@ body {
     position: absolute;
     background-color: white;
     border-radius: 50%;
+    width: 2px;
+    height: 2px;
 }

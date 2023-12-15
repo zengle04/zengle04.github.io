@@ -1,5 +1,3 @@
-var offsetStart = 0;
-var offsetEnd = 0;
 
 document.addEventListener("DOMContentLoaded", function () {
     const starsContainer = document.getElementById("stars-container");
@@ -16,9 +14,21 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 0; i < 100; i++) {
         createStar();
     }
-});
 
-window.addEventListener('scroll', () => {
-  document.documentElement.style.setProperty('--scroll', ( window.scrollY - offsetStart ) / 
-  ( document.body.offsetHeight - offsetStart - offsetEnd - window.innerHeight ));
-}, false);
+
+    function handleScroll() {
+        const scrollY = window.scrollY || window.pageYOffset;
+
+        // Adjust the stretching based on the scroll position
+        const stretchFactor = 1 + scrollY / 500;
+
+        // Apply the stretching effect to each star
+        const stars = document.querySelectorAll(".star");
+        stars.forEach((star) => {
+            star.style.height = `${20 * stretchFactor}px`;
+        });
+    }
+
+// Add scroll event listener
+    window.addEventListener("scroll", handleScroll);
+});

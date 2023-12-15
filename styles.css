@@ -20,11 +20,11 @@ body {
 }
 
 @keyframes stretch {
-    from {
+    0% {
         width: 2px;
         height: 2px;
     }
-    to {
+    100% {
         width: 10px;
         height: 50px;
     }

@@ -16,7 +16,7 @@ body {
     position: absolute;
     background-color: white;
     border-radius: 50%;
-    animation: stretch 1s infinite alternate;
+    animation: stretch 1s linear;
 }
 
 @keyframes stretch {
@@ -28,4 +28,13 @@ body {
         width: 10px;
         height: 50px;
     }
+}
+
+:root * {
+    animation-play-state: paused;
+
+    animation-delay: calc(var(--scroll) * -1s);
+
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
 }

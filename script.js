@@ -14,3 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
         createStar();
     }
 });
+
+var offsetStart = 0;
+var offsetEnd = 0;
+
+window.addEventListener('scroll', () => {
+    document.documentElement.style.setProperty('--scroll', (
+    window.scrollY - offsetStart) / (document.body.offsetHeight - 
+    offsetStart - offsetEnd - window.innerHeight));
+}, false);

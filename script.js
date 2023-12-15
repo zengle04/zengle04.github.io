@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     function handleScroll() {
-        const scrollY = window.scrollY || window.pageYOffset;
+        const scrollY = window.scrollY;
 
         // Adjust the stretching based on the scroll position
         const stretchFactor = 1 + scrollY / 500;

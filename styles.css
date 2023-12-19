@@ -19,13 +19,12 @@ body {
 }
 .name {
   
-  padding-top: 20%;
-  color:white;
+  padding: 50vh;
+  color: white;
   text-align: center;
-  font-size:large;
 }
 section {
-  background-color:black;
+  background-color: black;
   color: white;
   text-align: center;
 }

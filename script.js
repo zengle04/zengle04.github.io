@@ -26,7 +26,7 @@ window.addEventListener('scroll', function(){
     const stars = document.querySelectorAll(".star");
     stars.forEach((star) => {
         star.style.height = `${20 * stretchFactor}px`;
-        star.style.width = `${1 * stretchFactor}px`;
+
     });
     
 }, false);

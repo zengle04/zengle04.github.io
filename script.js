@@ -20,12 +20,13 @@ window.addEventListener('scroll', function(){
     const scrollY = window.scrollY;
 
     // Adjust the stretching based on the scroll position
-    const stretchFactor = 1 + scrollY / 500;
+    const stretchFactor = 1 + scrollY / 50;
 
     // Apply the stretching effect to each star
     const stars = document.querySelectorAll(".star");
     stars.forEach((star) => {
         star.style.height = `${20 * stretchFactor}px`;
+        star.style.width = `${1 * stretchFactor}px`;
     });
     
 }, false);

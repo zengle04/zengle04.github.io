@@ -11,6 +11,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function createStar() {
         const star = document.createElement("div");
         star.className = "star";
+        var g = Math.random();
+        if(g > .9){
+        	star.style.background = "red";
+        }else if (g > .8){
+        	star.style.background = "darkred";
+        }
+      
         star.style.left = `${Math.random() * 100}vw`;
         star.style.top = `${Math.random() * 100}vh`;
         starsContainer.appendChild(star);
@@ -23,9 +30,19 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 window.addEventListener('scroll', function(){
+      const starsContainer = document.getElementById("stars-container");
+    const totalHeight = Math.max(
+    document.body.scrollHeight, document.documentElement.scrollHeight,
+    document.body.offsetHeight, document.documentElement.offsetHeight,
+    document.body.clientHeight, document.documentElement.clientHeight
+    );
+ 
+   starsContainer.style.height = `${totalHeight}px`;
+    
+    
     
     const scrollY = window.scrollY;
-		console.log(scrollY);
+
     // Adjust the stretching based on the scroll position
     const stretchFactor = 1 + scrollY / 50;
 

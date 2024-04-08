@@ -5,6 +5,8 @@ body {
     margin-bottom:0;
     /*overflow-y: hidden; /* Hide vertical scrollbar */
     overflow-x: hidden;  /*Hide horizontal scrollbar */
+    margin-left:  0;
+    margin-right: 0;
 }
 div {
     margin:20%;

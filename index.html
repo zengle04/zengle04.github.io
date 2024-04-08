@@ -1,13 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
+<html>
+    <head>
+	<link rel="stylesheet" type="text/css" href="/public/src/style.css">
+
 		<meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<title>Zeke Engle</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
+        <div>
+        <p style="font-size:1vw;">Hello! If this failed to load here is an alternative link to my <a href="old\Depreciated\index.html">website</a></p>
+        <br>
+        <button class="button" type="button" id="jump" onClick="document.getElementById('middle').scrollIntoView();" style="font-size:2vw;"> Scroll </button>
+        </div>
+        <!-- 
+			Import map is not available in all browsers.
+			This is necessary to serve the three path so that other imports can access it. 
+		-->
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./node_modules/three/build/three.module.js"
+				}
+			}
+		</script>
+    </head>
+    
 	<body>
+		<!-- Canvas is necessary to hold a scene -->
+    
+		<canvas id="background"></canvas>
 		<script type="module" src="/public/src/main.js"></script>
+    
 	</body>
+    <div id="middle"></div>
 </html>

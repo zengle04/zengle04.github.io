@@ -55,7 +55,7 @@ function init() {
 }
 
 function LoadModel(){
-    loader.load( 'public/models/scene.gltf', function ( gltf ) {
+    loader.load( '/models/scene.gltf', function ( gltf ) {
 
         scene.add( gltf.scene );
     
@@ -91,4 +91,3 @@ function render() {
     renderer.render( scene, camera );
 
 }
-

@@ -17,7 +17,9 @@ body {
   border-radius: 50%;
   width: 2px;
   height: 2px;
- 
+  animation-name: twinkle;
+  animation-duration: 4s;
+  animation-timing-function: ease-in;
 }
 .name {
 
@@ -26,6 +28,13 @@ color: white;
 text-align: center;
 margin: 0;
 }
+
+@keyframes twinkle {
+  from {background-color: white;}
+  to {background-color: #555;}
+}
+
+
 section {
 margin: 0;
 color:white;

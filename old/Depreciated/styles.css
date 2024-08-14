@@ -13,13 +13,15 @@ body {
 
 .star {
   position: fixed;
-  background-color: white;
+  background-color: #fff;
   border-radius: 50%;
   width: 2px;
   height: 2px;
   animation-name: twinkle;
-  animation-duration: 1s infinite;
-  animation-timing-function: ease-in;
+  animation-duration: 4s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction:alternate-reverse;
 }
 .name {
 

@@ -1,36 +1,90 @@
 <!DOCTYPE html>
-<html>
-    <head>
-	<link rel="stylesheet" type="text/css" href="/public/src/style.css">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: left;
+            height: 100vh;
+        }
 
-		<meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<title>Zeke Engle</title>
-        <div>
-        <p style="font-size:1vw;">Hello! If this failed to load here is an alternative link to my <a href="/old/Depreciated/page1.html">website</a></p>
-		<p style="font-size:1vw;">ignore this<a href="/old/Depreciated/chrpage.html">website</a></p>
-        <br>
-        <button class="button" type="button" id="jump" onClick="document.getElementById('middle').scrollIntoView();" style="font-size:2vw;"> Scroll </button>
+        .container {
+            width: 80%;
+            max-width: 900px;
+            padding: 20px;
+            background-color: white;
+  
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .directory-section {
+            margin-bottom: 30px;
+        }
+
+        .directory-section h2 {
+            color: black;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+        }
+
+        a:hover {
+            color: black;
+        }
+
+      
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Website Directory</h1>
+
+        <div class="directory-section">
+            <h2>Links</h2>
+            <ul>
+                <li><a href="old/Depreciated/page1.html">Old Site</a></li>
+                <li><a href="src/chrpage.html">Chr</a></li>
+                <li><a href="http://3.135.229.129/">Research</a></li>
+            </ul>
         </div>
-        <!-- 
-			Import map is not available in all browsers.
-			This is necessary to serve the three path so that other imports can access it. 
-		-->
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "./node_modules/three/build/three.module.js"
-				}
-			}
-		</script>
-    </head>
-    
-	<body>
-		<!-- Canvas is necessary to hold a scene -->
-    
-		<canvas id="background"></canvas>
-		<script type="module" src="/public/src/main.js"></script>
-    
-	</body>
-    <div id="middle"></div>
+
+        <div class="directory-section">
+            <h2>Contact</h2>
+            <ul>
+                <li><a href="#contact1">Email</a></li>
+
+            </ul>
+        </div>
+    </div>
+
+
+
+</body>
 </html>

@@ -2,8 +2,8 @@ const canvas = document.getElementById('snowCanvas');
 const ctx = canvas.getContext('2d');
 
 // Resize the canvas to fit the window
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = window.outerWidth;
+canvas.height = window.outerHeight;
 
 let snowflakes = [];
 

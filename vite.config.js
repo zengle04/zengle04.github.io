@@ -8,6 +8,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         nested: resolve(__dirname, 'old/Depreciated/page1.html'),
+        nested: resolve(__dirname, 'chrpage.html'),
+        nested: resolve(___dirname, 'old/Depreciated/chrpage.html'),
       },
     },
   },

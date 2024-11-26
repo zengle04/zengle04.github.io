@@ -1,0 +1,888 @@
+<html>
+<head>
+<style>
+    h2,h3 {
+    padding-bottom: 5px;
+    border-bottom: 1px solid lightgray;
+    align-items: center;
+}
+h1 {
+    padding-bottom: 5px;
+    border-bottom: 1px solid lightgray;
+    align-items: center;
+    font-size:large
+}
+pre code {
+  background-color: #eee;
+  border: 1px solid #999;
+  display: block;
+  padding: 20px;
+}
+</style>
+<div>
+    <h2>Here lies the verilog code for the obstacle avoidant vehicle</h2>
+</div>
+</head>
+    <div>
+        <h1>TopModule</h1>
+        <pre>
+        <code>
+        `timescale 1ns / 1ps
+        //////////////////////////////////////////////////////////////////////////////////
+        // Company: 
+        // Engineer: 
+        // 
+        // Create Date: 11/24/2024 04:41:45 PM
+        // Design Name: 
+        // Module Name: Source
+        // Project Name: 
+        // Target Devices: 
+        // Tool Versions: 
+        // Description: 
+        // 
+        // Dependencies: 
+        // 
+        // Revision:
+        // Revision 0.01 - File Created
+        // Additional Comments:
+        // 
+        //////////////////////////////////////////////////////////////////////////////////
+        /*module SevenSegmentDriver(
+            input clk, // 100 Mhz clock source on Basys 3 FPGA
+            input [63:0] num,
+            output reg [3:0] Anode_Activate, // anode signals of the 7-segment LED display
+            output reg [6:0] LED_out// cathode patterns of the 7-segment LED display
+            );
+            module distanceSensor(
+            input clk,
+            input echo,
+            input start,
+            output reg vtrigger,
+            output [63:0]distance
+        );
+        module Brain(
+            input clk,
+            input [32:0] Fdistance,
+            input [32:0] Ldistance,
+            input [32:0] Rdistance,
+            output reg [1:0] Direction,
+            output reg [1:0] Speed
+            );
+            */
+            
+            
+        
+        module Source(
+            input clk, 
+            input S, 
+            input FE, RE, LE, //i/o for the eyes
+            output FT, RT, LT,//i/o for the eyes
+            output reg PWMB = 0, PWMF = 0,//Control for the PWM into the H-Bridge
+            output reg [1:0]RWD = 0, FWD = 0, //Direction control for the wheels
+            output [6:0] LED_out,
+            output [3:0] Anode_Activate
+            );
+            
+            clk_wiz_0 wiz(.clk_out1(clkOut), .clk_out2(clkOut2), .reset(1'b0), .clk_in1(clk));
+            wire [32:0] distance, Rdistance, Ldistance;
+            wire [1:0] direction, speed;
+            reg [2:0] PWM_Counter = 0;
+            
+        distanceSensor FD(.clk(clkOut), .echo(FE), .vtrigger(FT), .distance(distance));
+        distanceSensor LD(.clk(clkOut), .echo(LE), .vtrigger(LT), .distance(Ldistance));
+        distanceSensor RD(.clk(clkOut), .echo(RE), .vtrigger(RT), .distance(Rdistance));
+        
+        SevenSegmentDriver ssd(.clk(clkOut), .num(distance), .direction(direction), .Anode(Anode_Activate), .LED(LED_out));
+        
+        Brain ai(.clk(clkOut), .Fdistance(distance), .Ldistance(Ldistance), .Rdistance(Rdistance), .Direction(direction), .Speed(speed));
+            //direction and speed
+            always @(posedge clkOut) begin 
+                //S turns on
+                if(S == 1) begin
+                    //handles direction
+                    if(speed == 2'b00) begin
+                        RWD <= 2'b00;
+                        FWD <= 2'b00;
+                    end else begin
+                        FWD <= direction;
+                        RWD <= 2'b10;
+                        PWMF <= PWMF ^1;
+                    end
+                end else begin
+                    FWD <= 0;
+                    RWD <= 0;
+                    PWMF <= 0;
+                    
+                end
+            end
+            
+            
+            always @(posedge clkOut2) begin
+                if(S==1) begin
+                    if(PWM_Counter ==0)begin
+                        PWMB <= 0;
+                        PWM_Counter <= 3'b010;
+                    end else begin
+                        PWMB <= 1;
+                        PWM_Counter <= PWM_Counter - 1; 
+                    end
+        
+                end else begin
+                    PWMB <= 0;
+                end
+            end
+            
+        endmodule
+        </code>
+        </pre>
+        <h1>Ultrasonic sensor data collection</h1>
+        <pre>
+            <code>
+        `timescale 1ns / 1ps
+        //////////////////////////////////////////////////////////////////////////////////
+        // Company: 
+        // Engineer: 
+        // 
+        // Create Date: 11/24/2024 04:41:45 PM
+        // Design Name: 
+        // Module Name: distanceSensor
+        // Project Name: 
+        // Target Devices: 
+        // Tool Versions: 
+        // Description: 
+        // 
+        // Dependencies: 
+        // 
+        // Revision:
+        // Revision 0.01 - File Created
+        // Additional Comments:
+        // 
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        
+        module distanceSensor(
+            input clk,
+            input echo,
+            output reg vtrigger,
+            output reg [7:0]distance
+        );
+         
+            reg [31:0] cnt;
+            reg [31:0] timer;
+            reg [31:0] timer2;
+            reg start = 1;
+            reg [1:0]enb;
+            reg [31:0]escape;
+            //distance = (((number of clock cycles echo was high) / (clocks per seconds)) * (speed of sound in air at 21C)) / (divided by 2 because there and back )
+        
+            
+            //vtrigger
+            always @(posedge clk) begin
+                //set vtrigger high and wait for 10us (1e12 clk cycles)
+                if (start) begin
+                    vtrigger <= 1'b1;
+                    timer <= 100;
+                    cnt <= 0;
+                    start <= 0;
+                    escape <= 100000;
+                end else if (timer > 0) begin
+                    timer <= timer - 1;
+                end else begin
+                    vtrigger <= 1'b0;
+        
+                end 
+                
+                if (echo) begin
+                    cnt <= cnt + 1'b1;
+                    enb <= 2'b10;
+                end 
+                
+                if(!echo && (enb > 2'b00)) begin
+                    //Fix negative Slack issue
+                    
+                    distance <= (cnt * 34300)/(2 * 10000000);
+                    enb <= enb - 1;
+                end
+                
+                
+                if(escape > 0)begin
+                    escape <= escape -1;
+                end else begin
+                    start <= 1;
+                end
+                
+            end 
+            /*
+              reg [1:0] state = 0;  // State variable for controlling operation
+          reg [63:0] cnt = 0;
+          reg [31:0] timer = 0;
+          reg [31:0] delay_timer = 0;
+        
+          // Define states
+          localparam IDLE = 2'd0,
+                     TRIGGER = 2'd1,
+                     MEASURE = 2'd2,
+                     WAIT = 2'd3;
+        
+          always @(posedge clk) begin
+              case (state)
+                  IDLE: begin
+                      vtrigger <= 1'b0;
+                      cnt <= 0;
+                      if (delay_timer == 0) begin
+                          state <= TRIGGER;
+                      end else begin
+                          delay_timer <= delay_timer - 1;
+                      end
+                  end
+        
+                  TRIGGER: begin
+                      vtrigger <= 1'b1;
+                      timer <= 1000; // 10us with a 100MHz clock
+                      state <= MEASURE;
+                  end
+        
+                  MEASURE: begin
+                      if (timer > 0) begin
+                          timer <= timer - 1;
+                      end else begin
+                          vtrigger <= 1'b0;
+                          if (echo) begin
+                              cnt <= cnt + 1'b1;
+                          end else if (cnt > 0) begin
+                              distance <= (cnt * 34300) / (2 * 100000000); // Calculate distance
+                              state <= WAIT;
+                              delay_timer <= 10000; // Allow some time between measurements
+                          end
+                      end
+                  end
+        
+                  WAIT: begin
+                      if (delay_timer > 0) begin
+                          delay_timer <= delay_timer - 1;
+                      end else begin
+                          state <= IDLE;  // Go back to IDLE and start new measurement
+                      end
+                  end
+              endcase
+          end
+        
+            */
+            
+        endmodule
+            </code>
+        </pre>
+
+        <h1>7-Segment Display Driver</h1>
+        <pre>
+            <code>
+
+        `timescale 1ns / 1ps
+        //////////////////////////////////////////////////////////////////////////////////
+        // Company: 
+        // Engineer: 
+        // 
+        // Create Date: 11/24/2024 06:47:56 PM
+        // Design Name: 
+        // Module Name: SevenSegmentDriver
+        // Project Name: 
+        // Target Devices: 
+        // Tool Versions: 
+        // Description: 
+        // 
+        // Dependencies: 
+        // 
+        // Revision:
+        // Revision 0.01 - File Created
+        // Additional Comments:
+        // 
+        //////////////////////////////////////////////////////////////////////////////////
+        module SevenSegmentDriver(
+            input clk, // 100 Mhz clock source on Basys 3 FPGA
+            input [7:0] num,
+            input [1:0] direction,
+            output reg [3:0] Anode, // anode signals of the 7-segment LED display
+            output reg [6:0] LED// cathode patterns of the 7-segment LED display
+            );
+            
+            
+            reg [3:0]LED_BCD;
+            reg [1:0]LED_activating_counter = 2'b00;
+            reg [63:0] cnt;
+            always @(posedge clk) begin
+                if (cnt > 0 ) begin
+                    cnt <= cnt - 1;
+                end 
+                if (cnt == 0) begin
+                    if (LED_activating_counter == 2'b11) begin
+                        LED_activating_counter <= 2'b00;
+                    end else begin
+                        LED_activating_counter <= LED_activating_counter + 1'b1;
+                    end
+                    cnt <= 41666;
+                end
+                
+                
+            end
+            
+            
+            always @(*)
+            begin
+                case(LED_activating_counter)
+                2'b00: begin
+                    Anode = 4'b1110; 
+                    // activate LED1 and Deactivate LED2, LED3, LED4
+                    LED_BCD = num[3:0];
+                    // the first digit of the 16-bit number
+                      end
+                2'b01: begin
+                    Anode = 4'b1101; 
+                    // activate LED2 and Deactivate LED1, LED3, LED4
+                    LED_BCD = num[7:4];
+                    // the second digit of the 16-bit number
+                      end
+                2'b10: begin
+                    Anode = 4'b1011; 
+                    // activate LED3 and Deactivate LED2, LED1, LED4
+                    LED_BCD = direction[0];
+                    // the third digit of the 16-bit number
+                        end
+                2'b11: begin
+                    Anode = 4'b0111; 
+                    // activate LED4 and Deactivate LED2, LED3, LED1
+                    LED_BCD = direction[1];
+                    // the fourth digit of the 16-bit number    
+                       end
+                endcase
+            end
+            // Cathode patterns of the 7-segment LED display 
+            always @(*)
+            begin
+                case(LED_BCD)
+                4'b0000: LED = 7'b1000000;  // "0"     
+                4'b0001: LED = 7'b1111001;  // "1" 
+                4'b0010: LED = 7'b0100100; // "2" 
+                4'b0011: LED = 7'b0110000; // "3" 
+                4'b0100: LED = 7'b0011001; // "4" 
+                4'b0101: LED = 7'b0010010; // "5" 
+                4'b0110: LED = 7'b0000010; // "6" 
+                4'b0111: LED = 7'b1111000; // "7" 
+                4'b1000: LED = 7'b0000000; // "8"     
+                4'b1001: LED = 7'b0010000;  // "9" 
+                4'b1010: LED = 7'b0001000; // "A" 
+                4'b1011: LED = 7'b0000011; // "B" 
+                4'b1100: LED = 7'b1000110; // "C"     
+                4'b1101: LED = 7'b0100001;  // "D" 
+                4'b1110: LED = 7'b0000110;  // "E"     
+                4'b1111: LED = 7'b0001110;  // "F" 
+                default: LED = 7'b0000001; // "8"
+                endcase
+                /*
+                           4'h0: seg[6:0] = 7'b1000000;    // digit 0
+                    4'h1: seg[6:0] = 7'b1111001;    // digit 1
+                    4'h2: seg[6:0] = 7'b0100100;    // digit 2
+                    4'h3: seg[6:0] = 7'b0110000;    // digit 3
+                    4'h4: seg[6:0] = 7'b0011001;    // digit 4
+                    4'h5: seg[6:0] = 7'b0010010;    // digit 5
+                    4'h6: seg[6:0] = 7'b0000010;    // digit 6
+                    4'h7: seg[6:0] = 7'b1111000;    // digit 7
+                    4'h8: seg[6:0] = 7'b0000000;    // digit 8
+                    4'h9: seg[6:0] = 7'b0010000;    // digit 9
+                    4'ha: seg[6:0] = 7'b0001000;    // digit A
+                    4'hb: seg[6:0] = 7'b0000011;    // digit B
+                    4'hc: seg[6:0] = 7'b1000110;    // digit C
+                    4'hd: seg[6:0] = 7'b0100001;    // digit D
+                    4'he: seg[6:0] = 7'b0000110;    // digit E
+                    default: seg[6:0] = 7'b0001110; // digit F
+                */
+            end
+         endmodule
+        </code>
+    </pre>
+        <h1>AI module that determined what direction to drive</h1>
+    <pre>
+        <code>
+
+        
+        `timescale 1ns / 1ps
+        //////////////////////////////////////////////////////////////////////////////////
+        // Company: 
+        // Engineer: 
+        // 
+        // Create Date: 11/24/2024 11:54:06 PM
+        // Design Name: 
+        // Module Name: Brain
+        // Project Name: 
+        // Target Devices: 
+        // Tool Versions: 
+        // Description: 
+        // 
+        // Dependencies: 
+        // 
+        // Revision:
+        // Revision 0.01 - File Created
+        // Additional Comments:
+        // 
+        //////////////////////////////////////////////////////////////////////////////////
+        
+        
+        module Brain(
+            input clk,
+            input [32:0] Fdistance,
+            input [32:0] Ldistance,
+            input [32:0] Rdistance,
+            output reg [1:0] Direction,
+            output reg [1:0] Speed
+            );
+            
+            localparam 
+                    Stopped = 3'b000,
+                    Left = 3'b001,
+                    Right = 3'b010,
+                    Forward = 3'b011,
+                    Delay   = 3'b100;
+                    
+            reg [2:0] state = Stopped;
+            reg [31:0] delayTime = 0;
+            
+            always @(posedge clk) begin
+                case (state)
+                  Stopped: begin
+                            if(delayTime == 0)begin
+                                //Forward change in direction
+                                if(Rdistance < 5'b10010 && Rdistance < Ldistance && Fdistance > 7'b0011000) begin
+                                    state <= Left;
+                                end else if(Ldistance < 5'b10010 && Ldistance < Rdistance && Fdistance > 7'b0011000) begin
+                                    state <= Right;
+                                end else if(Fdistance >= 7'b0111000) begin
+                                    state <= Forward;
+                                end else if(Fdistance <= 7'b0011000) begin
+                                    //EMERGENCY
+                                    state <= Stopped;
+                                    Direction <= 2'b00;
+                                    Speed <= 2'b00;
+        
+                                end else if(Ldistance > Rdistance) begin
+                                    state <= Left;
+                                end else begin
+                                    state <= Right;
+                                end
+                                //Sides changes in Direction
+                                
+                                
+                                
+                            end else begin
+                                delayTime <= delayTime -1;
+                            end
+                           end
+                  Left: begin
+                        Direction <= 2'b10;
+                        Speed <= 2'b01; //slow
+                        state <= Delay;
+                        end
+                  Right: begin
+                        Direction <= 2'b01;
+                        Speed <= 2'b01; //slow
+                        state <= Delay;
+                         end
+                  Forward: begin
+                          Direction <= 2'b00;
+                          Speed <= 2'b10;
+                          state <= Delay;
+                         end
+                  Delay: begin
+                            delayTime <= 1000000;
+                            state <= Stopped;
+                         end
+                endcase
+            end
+           
+        endmodule
+         
+    </code>
+</pre>
+        
+
+    <h1>Basys-3 Specific Code - Constraints file and clock divider</h1>
+        <pre>
+            <code>
+
+
+        ## This file is a general .xdc for the Basys3 rev B board
+        ## To use it in a project:
+        ## - uncomment the lines corresponding to used pins
+        ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
+        
+        ## Clock signal
+        set_property -dict { PACKAGE_PIN W5   IOSTANDARD LVCMOS33 } [get_ports clk]
+        create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk]
+        
+        
+        ## Switches
+        set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {S}]
+        #set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports {sw[1]}]
+        #set_property -dict { PACKAGE_PIN W16   IOSTANDARD LVCMOS33 } [get_ports {sw[2]}]
+        #set_property -dict { PACKAGE_PIN W17   IOSTANDARD LVCMOS33 } [get_ports {sw[3]}]
+        #set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports {sw[4]}]
+        #set_property -dict { PACKAGE_PIN V15   IOSTANDARD LVCMOS33 } [get_ports {sw[5]}]
+        #set_property -dict { PACKAGE_PIN W14   IOSTANDARD LVCMOS33 } [get_ports {sw[6]}]
+        #set_property -dict { PACKAGE_PIN W13   IOSTANDARD LVCMOS33 } [get_ports {sw[7]}]
+        #set_property -dict { PACKAGE_PIN V2    IOSTANDARD LVCMOS33 } [get_ports {sw[8]}]
+        #set_property -dict { PACKAGE_PIN T3    IOSTANDARD LVCMOS33 } [get_ports {sw[9]}]
+        #set_property -dict { PACKAGE_PIN T2    IOSTANDARD LVCMOS33 } [get_ports {sw[10]}]
+        #set_property -dict { PACKAGE_PIN R3    IOSTANDARD LVCMOS33 } [get_ports {sw[11]}]
+        #set_property -dict { PACKAGE_PIN W2    IOSTANDARD LVCMOS33 } [get_ports {sw[12]}]
+        #set_property -dict { PACKAGE_PIN U1    IOSTANDARD LVCMOS33 } [get_ports {sw[13]}]
+        #set_property -dict { PACKAGE_PIN T1    IOSTANDARD LVCMOS33 } [get_ports {sw[14]}]
+        #set_property -dict { PACKAGE_PIN R2    IOSTANDARD LVCMOS33 } [get_ports {sw[15]}]
+        
+        
+        ## LEDs
+        #set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports {led[0]}]
+        #set_property -dict { PACKAGE_PIN E19   IOSTANDARD LVCMOS33 } [get_ports {led[1]}]
+        #set_property -dict { PACKAGE_PIN U19   IOSTANDARD LVCMOS33 } [get_ports {led[2]}]
+        #set_property -dict { PACKAGE_PIN V19   IOSTANDARD LVCMOS33 } [get_ports {led[3]}]
+        #set_property -dict { PACKAGE_PIN W18   IOSTANDARD LVCMOS33 } [get_ports {led[4]}]
+        #set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led[5]}]
+        #set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led[6]}]
+        #set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led[7]}]
+        #set_property -dict { PACKAGE_PIN V13   IOSTANDARD LVCMOS33 } [get_ports {led[8]}]
+        #set_property -dict { PACKAGE_PIN V3    IOSTANDARD LVCMOS33 } [get_ports {led[9]}]
+        #set_property -dict { PACKAGE_PIN W3    IOSTANDARD LVCMOS33 } [get_ports {led[10]}]
+        #set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led[11]}]
+        #set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led[12]}]
+        #set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led[13]}]
+        #set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}]
+        #set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}]
+        
+        
+        ##7 Segment Display
+        set_property -dict { PACKAGE_PIN W7   IOSTANDARD LVCMOS33 } [get_ports {LED_out[0]}]
+        set_property -dict { PACKAGE_PIN W6   IOSTANDARD LVCMOS33 } [get_ports {LED_out[1]}]
+        set_property -dict { PACKAGE_PIN U8   IOSTANDARD LVCMOS33 } [get_ports {LED_out[2]}]
+        set_property -dict { PACKAGE_PIN V8   IOSTANDARD LVCMOS33 } [get_ports {LED_out[3]}]
+        set_property -dict { PACKAGE_PIN U5   IOSTANDARD LVCMOS33 } [get_ports {LED_out[4]}]
+        set_property -dict { PACKAGE_PIN V5   IOSTANDARD LVCMOS33 } [get_ports {LED_out[5]}]
+        set_property -dict { PACKAGE_PIN U7   IOSTANDARD LVCMOS33 } [get_ports {LED_out[6]}]
+        
+        #set_property -dict { PACKAGE_PIN V7   IOSTANDARD LVCMOS33 } [get_ports dp]
+        
+        set_property -dict { PACKAGE_PIN U2   IOSTANDARD LVCMOS33 } [get_ports {Anode_Activate[0]}]
+        set_property -dict { PACKAGE_PIN U4   IOSTANDARD LVCMOS33 } [get_ports {Anode_Activate[1]}]
+        set_property -dict { PACKAGE_PIN V4   IOSTANDARD LVCMOS33 } [get_ports {Anode_Activate[2]}]
+        set_property -dict { PACKAGE_PIN W4   IOSTANDARD LVCMOS33 } [get_ports {Anode_Activate[3]}]
+        
+        
+        ##Buttons
+        #set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports btnC]
+        #set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports btnU]
+        #set_property -dict { PACKAGE_PIN W19   IOSTANDARD LVCMOS33 } [get_ports btnL]
+        #set_property -dict { PACKAGE_PIN T17   IOSTANDARD LVCMOS33 } [get_ports btnR]
+        #set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports btnD]
+        
+        
+        ##Pmod Header JA
+        set_property -dict { PACKAGE_PIN J1   IOSTANDARD LVCMOS33 } [get_ports {FE}];#Sch name = JA1
+        set_property -dict { PACKAGE_PIN L2   IOSTANDARD LVCMOS33 } [get_ports {FT}];#Sch name = JA2
+        set_property -dict { PACKAGE_PIN J2   IOSTANDARD LVCMOS33 } [get_ports {RE}];#Sch name = JA3
+        set_property -dict { PACKAGE_PIN G2   IOSTANDARD LVCMOS33 } [get_ports {RT}];#Sch name = JA4
+        set_property -dict { PACKAGE_PIN H1   IOSTANDARD LVCMOS33 } [get_ports {LE}];#Sch name = JA7
+        set_property -dict { PACKAGE_PIN K2   IOSTANDARD LVCMOS33 } [get_ports {LT}];#Sch name = JA8
+        set_property -dict { PACKAGE_PIN H2   IOSTANDARD LVCMOS33 } [get_ports {RWD[0]}];#Sch name = JA9
+        set_property -dict { PACKAGE_PIN G3   IOSTANDARD LVCMOS33 } [get_ports {RWD[1]}];#Sch name = JA10
+        
+        ##Pmod Header JB
+        set_property -dict { PACKAGE_PIN A14   IOSTANDARD LVCMOS33 } [get_ports {FWD[0]}];#Sch name = JB1
+        set_property -dict { PACKAGE_PIN A16   IOSTANDARD LVCMOS33 } [get_ports {FWD[1]}];#Sch name = JB2
+        set_property -dict { PACKAGE_PIN B15   IOSTANDARD LVCMOS33 } [get_ports {PWMF}];#Sch name = JB3
+        set_property -dict { PACKAGE_PIN B16   IOSTANDARD LVCMOS33 } [get_ports {PWMB}];#Sch name = JB4
+        #set_property -dict { PACKAGE_PIN A15   IOSTANDARD LVCMOS33 } [get_ports {B[4]}];#Sch name = JB7
+        #set_property -dict { PACKAGE_PIN A17   IOSTANDARD LVCMOS33 } [get_ports {B[5]}];#Sch name = JB8
+        #set_property -dict { PACKAGE_PIN C15   IOSTANDARD LVCMOS33 } [get_ports {B[6]}];#Sch name = JB9
+        #set_property -dict { PACKAGE_PIN C16   IOSTANDARD LVCMOS33 } [get_ports {B[7]}];#Sch name = JB10
+        
+        ##Pmod Header JC
+        #set_property -dict { PACKAGE_PIN K17   IOSTANDARD LVCMOS33 } [get_ports {JC[0]}];#Sch name = JC1
+        #set_property -dict { PACKAGE_PIN M18   IOSTANDARD LVCMOS33 } [get_ports {JC[1]}];#Sch name = JC2
+        #set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports {JC[2]}];#Sch name = JC3
+        #set_property -dict { PACKAGE_PIN P18   IOSTANDARD LVCMOS33 } [get_ports {JC[3]}];#Sch name = JC4
+        #set_property -dict { PACKAGE_PIN L17   IOSTANDARD LVCMOS33 } [get_ports {JC[4]}];#Sch name = JC7
+        #set_property -dict { PACKAGE_PIN M19   IOSTANDARD LVCMOS33 } [get_ports {JC[5]}];#Sch name = JC8
+        #set_property -dict { PACKAGE_PIN P17   IOSTANDARD LVCMOS33 } [get_ports {JC[6]}];#Sch name = JC9
+        #set_property -dict { PACKAGE_PIN R18   IOSTANDARD LVCMOS33 } [get_ports {JC[7]}];#Sch name = JC10
+        
+        ##Pmod Header JXADC
+        #set_property -dict { PACKAGE_PIN J3   IOSTANDARD LVCMOS33 } [get_ports {JXADC[0]}];#Sch name = XA1_P
+        #set_property -dict { PACKAGE_PIN L3   IOSTANDARD LVCMOS33 } [get_ports {JXADC[1]}];#Sch name = XA2_P
+        #set_property -dict { PACKAGE_PIN M2   IOSTANDARD LVCMOS33 } [get_ports {JXADC[2]}];#Sch name = XA3_P
+        #set_property -dict { PACKAGE_PIN N2   IOSTANDARD LVCMOS33 } [get_ports {JXADC[3]}];#Sch name = XA4_P
+        #set_property -dict { PACKAGE_PIN K3   IOSTANDARD LVCMOS33 } [get_ports {JXADC[4]}];#Sch name = XA1_N
+        #set_property -dict { PACKAGE_PIN M3   IOSTANDARD LVCMOS33 } [get_ports {JXADC[5]}];#Sch name = XA2_N
+        #set_property -dict { PACKAGE_PIN M1   IOSTANDARD LVCMOS33 } [get_ports {JXADC[6]}];#Sch name = XA3_N
+        #set_property -dict { PACKAGE_PIN N1   IOSTANDARD LVCMOS33 } [get_ports {JXADC[7]}];#Sch name = XA4_N
+        
+        
+        ##VGA Connector
+        #set_property -dict { PACKAGE_PIN G19   IOSTANDARD LVCMOS33 } [get_ports {vgaRed[0]}]
+        #set_property -dict { PACKAGE_PIN H19   IOSTANDARD LVCMOS33 } [get_ports {vgaRed[1]}]
+        #set_property -dict { PACKAGE_PIN J19   IOSTANDARD LVCMOS33 } [get_ports {vgaRed[2]}]
+        #set_property -dict { PACKAGE_PIN N19   IOSTANDARD LVCMOS33 } [get_ports {vgaRed[3]}]
+        #set_property -dict { PACKAGE_PIN N18   IOSTANDARD LVCMOS33 } [get_ports {vgaBlue[0]}]
+        #set_property -dict { PACKAGE_PIN L18   IOSTANDARD LVCMOS33 } [get_ports {vgaBlue[1]}]
+        #set_property -dict { PACKAGE_PIN K18   IOSTANDARD LVCMOS33 } [get_ports {vgaBlue[2]}]
+        #set_property -dict { PACKAGE_PIN J18   IOSTANDARD LVCMOS33 } [get_ports {vgaBlue[3]}]
+        #set_property -dict { PACKAGE_PIN J17   IOSTANDARD LVCMOS33 } [get_ports {vgaGreen[0]}]
+        #set_property -dict { PACKAGE_PIN H17   IOSTANDARD LVCMOS33 } [get_ports {vgaGreen[1]}]
+        #set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports {vgaGreen[2]}]
+        #set_property -dict { PACKAGE_PIN D17   IOSTANDARD LVCMOS33 } [get_ports {vgaGreen[3]}]
+        #set_property -dict { PACKAGE_PIN P19   IOSTANDARD LVCMOS33 } [get_ports Hsync]
+        #set_property -dict { PACKAGE_PIN R19   IOSTANDARD LVCMOS33 } [get_ports Vsync]
+        
+        
+        ##USB-RS232 Interface
+        #set_property -dict { PACKAGE_PIN B18   IOSTANDARD LVCMOS33 } [get_ports RsRx]
+        #set_property -dict { PACKAGE_PIN A18   IOSTANDARD LVCMOS33 } [get_ports RsTx]
+        
+        
+        ##USB HID (PS/2)
+        #set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33   PULLUP true } [get_ports PS2Clk]
+        #set_property -dict { PACKAGE_PIN B17   IOSTANDARD LVCMOS33   PULLUP true } [get_ports PS2Data]
+        
+        
+        ##Quad SPI Flash
+        ##Note that CCLK_0 cannot be placed in 7 series devices. You can access it using the
+        ##STARTUPE2 primitive.
+        #set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports {QspiDB[0]}]
+        #set_property -dict { PACKAGE_PIN D19   IOSTANDARD LVCMOS33 } [get_ports {QspiDB[1]}]
+        #set_property -dict { PACKAGE_PIN G18   IOSTANDARD LVCMOS33 } [get_ports {QspiDB[2]}]
+        #set_property -dict { PACKAGE_PIN F18   IOSTANDARD LVCMOS33 } [get_ports {QspiDB[3]}]
+        #set_property -dict { PACKAGE_PIN K19   IOSTANDARD LVCMOS33 } [get_ports QspiCSn]
+        
+        
+        ## Configuration options, can be used for all designs
+        set_property CONFIG_VOLTAGE 3.3 [current_design]
+        set_property CFGBVS VCCO [current_design]
+        
+        ## SPI configuration mode options for QSPI boot, can be used for all designs
+        set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+        set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+        set_property CONFIG_MODE SPIx4 [current_design]
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        // file: clk_wiz_0.v
+        // (c) Copyright 2017-2018, 2023 Advanced Micro Devices, Inc. All rights reserved.
+        //
+        // This file contains confidential and proprietary information
+        // of AMD and is protected under U.S. and international copyright
+        // and other intellectual property laws.
+        //
+        // DISCLAIMER
+        // This disclaimer is not a license and does not grant any
+        // rights to the materials distributed herewith. Except as
+        // otherwise provided in a valid license issued to you by
+        // AMD, and to the maximum extent permitted by applicable
+        // law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+        // WITH ALL FAULTS, AND AMD HEREBY DISCLAIMS ALL WARRANTIES
+        // AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+        // BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+        // INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+        // (2) AMD shall not be liable (whether in contract or tort,
+        // including negligence, or under any other theory of
+        // liability) for any loss or damage of any kind or nature
+        // related to, arising under or in connection with these
+        // materials, including for any direct, or any indirect,
+        // special, incidental, or consequential loss or damage
+        // (including loss of data, profits, goodwill, or any type of
+        // loss or damage suffered as a result of any action brought
+        // by a third party) even if such damage or loss was
+        // reasonably foreseeable or AMD had been advised of the
+        // possibility of the same.
+        //
+        // CRITICAL APPLICATIONS
+        // AMD products are not designed or intended to be fail-
+        // safe, or for use in any application requiring fail-safe
+        // performance, such as life-support or safety devices or
+        // systems, Class III medical devices, nuclear facilities,
+        // applications related to the deployment of airbags, or any
+        // other applications that could lead to death, personal
+        // injury, or severe property or environmental damage
+        // (individually and collectively, "Critical
+        // Applications"). Customer assumes the sole risk and
+        // liability of any use of AMD products in Critical
+        // Applications, subject only to applicable laws and
+        // regulations governing limitations on product liability.
+        //
+        // THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+        // PART OF THIS FILE AT ALL TIMES.
+        //----------------------------------------------------------------------------
+        // User entered comments
+        //----------------------------------------------------------------------------
+        // None
+        //
+        //----------------------------------------------------------------------------
+        //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
+        //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
+        //----------------------------------------------------------------------------
+        // clk_out1__10.00000______0.000______50.0______209.588_____98.575
+        // clk_out2__500.00000______0.000______50.0_______97.082_____98.575
+        //
+        //----------------------------------------------------------------------------
+        // Input Clock   Freq (MHz)    Input Jitter (UI)
+        //----------------------------------------------------------------------------
+        // __primary_________100.000____________0.010
+        
+        `timescale 1ps/1ps
+        
+        module clk_wiz_0_clk_wiz 
+        
+         (// Clock in ports
+          // Clock out ports
+          output        clk_out1,
+          output        clk_out2,
+          // Status and control signals
+          input         reset,
+          output        locked,
+          input         clk_in1
+         );
+          // Input buffering
+          //------------------------------------
+        wire clk_in1_clk_wiz_0;
+        wire clk_in2_clk_wiz_0;
+          IBUF clkin1_ibufg
+           (.O (clk_in1_clk_wiz_0),
+            .I (clk_in1));
+        
+        
+        
+        
+          // Clocking PRIMITIVE
+          //------------------------------------
+        
+          // Instantiation of the MMCM PRIMITIVE
+          //    * Unused inputs are tied off
+          //    * Unused outputs are labeled unused
+        
+          wire        clk_out1_clk_wiz_0;
+          wire        clk_out2_clk_wiz_0;
+          wire        clk_out3_clk_wiz_0;
+          wire        clk_out4_clk_wiz_0;
+          wire        clk_out5_clk_wiz_0;
+          wire        clk_out6_clk_wiz_0;
+          wire        clk_out7_clk_wiz_0;
+        
+          wire [15:0] do_unused;
+          wire        drdy_unused;
+          wire        psdone_unused;
+          wire        locked_int;
+          wire        clkfbout_clk_wiz_0;
+          wire        clkfbout_buf_clk_wiz_0;
+          wire        clkfboutb_unused;
+            wire clkout0b_unused;
+           wire clkout1b_unused;
+           wire clkout2_unused;
+           wire clkout2b_unused;
+           wire clkout3_unused;
+           wire clkout3b_unused;
+           wire clkout4_unused;
+          wire        clkout5_unused;
+          wire        clkout6_unused;
+          wire        clkfbstopped_unused;
+          wire        clkinstopped_unused;
+          wire        reset_high;
+        
+          MMCME2_ADV
+          #(.BANDWIDTH            ("OPTIMIZED"),
+            .CLKOUT4_CASCADE      ("FALSE"),
+            .COMPENSATION         ("ZHOLD"),
+            .STARTUP_WAIT         ("FALSE"),
+            .DIVCLK_DIVIDE        (1),
+            .CLKFBOUT_MULT_F      (10.000),
+            .CLKFBOUT_PHASE       (0.000),
+            .CLKFBOUT_USE_FINE_PS ("FALSE"),
+            .CLKOUT0_DIVIDE_F     (100.000),
+            .CLKOUT0_PHASE        (0.000),
+            .CLKOUT0_DUTY_CYCLE   (0.500),
+            .CLKOUT0_USE_FINE_PS  ("FALSE"),
+            .CLKOUT1_DIVIDE       (2),
+            .CLKOUT1_PHASE        (0.000),
+            .CLKOUT1_DUTY_CYCLE   (0.500),
+            .CLKOUT1_USE_FINE_PS  ("FALSE"),
+            .CLKIN1_PERIOD        (10.000))
+          mmcm_adv_inst
+            // Output clocks
+           (
+            .CLKFBOUT            (clkfbout_clk_wiz_0),
+            .CLKFBOUTB           (clkfboutb_unused),
+            .CLKOUT0             (clk_out1_clk_wiz_0),
+            .CLKOUT0B            (clkout0b_unused),
+            .CLKOUT1             (clk_out2_clk_wiz_0),
+            .CLKOUT1B            (clkout1b_unused),
+            .CLKOUT2             (clkout2_unused),
+            .CLKOUT2B            (clkout2b_unused),
+            .CLKOUT3             (clkout3_unused),
+            .CLKOUT3B            (clkout3b_unused),
+            .CLKOUT4             (clkout4_unused),
+            .CLKOUT5             (clkout5_unused),
+            .CLKOUT6             (clkout6_unused),
+             // Input clock control
+            .CLKFBIN             (clkfbout_buf_clk_wiz_0),
+            .CLKIN1              (clk_in1_clk_wiz_0),
+            .CLKIN2              (1'b0),
+             // Tied to always select the primary input clock
+            .CLKINSEL            (1'b1),
+            // Ports for dynamic reconfiguration
+            .DADDR               (7'h0),
+            .DCLK                (1'b0),
+            .DEN                 (1'b0),
+            .DI                  (16'h0),
+            .DO                  (do_unused),
+            .DRDY                (drdy_unused),
+            .DWE                 (1'b0),
+            // Ports for dynamic phase shift
+            .PSCLK               (1'b0),
+            .PSEN                (1'b0),
+            .PSINCDEC            (1'b0),
+            .PSDONE              (psdone_unused),
+            // Other control and status signals
+            .LOCKED              (locked_int),
+            .CLKINSTOPPED        (clkinstopped_unused),
+            .CLKFBSTOPPED        (clkfbstopped_unused),
+            .PWRDWN              (1'b0),
+            .RST                 (reset_high));
+          assign reset_high = reset; 
+        
+          assign locked = locked_int;
+        // Clock Monitor clock assigning
+        //--------------------------------------
+         // Output buffering
+          //-----------------------------------
+        
+          BUFG clkf_buf
+           (.O (clkfbout_buf_clk_wiz_0),
+            .I (clkfbout_clk_wiz_0));
+        
+        
+        
+        
+        
+        
+          BUFG clkout1_buf
+           (.O   (clk_out1),
+            .I   (clk_out1_clk_wiz_0));
+        
+        
+          BUFG clkout2_buf
+           (.O   (clk_out2),
+            .I   (clk_out2_clk_wiz_0));   
+        endmodule
+    </code>
+    </pre>
+    </div>
+</html>

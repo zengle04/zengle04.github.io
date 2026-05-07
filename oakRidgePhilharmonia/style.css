@@ -1,0 +1,195 @@
+body {
+    background-color: #f2f2f2;
+    font-family: Georgia, serif;
+    padding: 20px;
+}
+
+
+/* GRID LAYOUT */
+.music-grid {
+    display: grid;
+
+    /* 2 columns */
+    grid-template-columns: 1fr 1fr;
+
+    gap: 40px;
+
+    align-items: start;
+}
+
+/* EACH SONG BLOCK */
+.piece-block {
+    background: #f2f2f2;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* TITLE */
+.piece-block h2 {
+    color: #1d3561;
+    font-size: 32px;
+    font-variant: small-caps;
+    margin-bottom: 20px;
+}
+
+/* LIST */
+.piece-block ul {
+    margin-left: 20px;
+}
+
+.piece-block li {
+    margin-bottom: 12px;
+}
+
+/* LINKS */
+.piece-block a {
+    color: #1d3561;
+    font-size: 22px;
+    text-decoration: underline;
+}
+
+.piece-block a:hover {
+    opacity: 0.7;
+}
+/* SEARCH CONTAINER */
+.search-area {
+    position: relative;
+
+    max-width: 700px;
+
+    margin-bottom: 10px;
+
+    /* LEFT JUSTIFIED */
+    margin-left: 0;
+    margin-right: auto;
+    margin-top:75px;
+}
+
+/* MODERN SEARCH INPUT */
+#searchBar {
+    width: 100%;
+
+    padding: 16px 22px;
+
+    border: none;
+    outline: none;
+
+    border-radius: 16px;
+
+    background: white;
+
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,0.08);
+
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* PLACEHOLDER */
+#searchBar::placeholder {
+    color: #999;
+}
+
+/* FOCUS EFFECT */
+#searchBar:focus {
+    box-shadow:
+        0 8px 28px rgba(29,53,97,0.18);
+
+    transform: translateY(-1px);
+}
+
+/* RECOMMENDATION POPUP */
+.recommendation-popup {
+
+    display: none;
+
+    position: absolute;
+
+    top: 70px;
+    left: 0;
+
+    width: 100%;
+
+    background: white;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.14);
+
+    z-index: 1000;
+
+    backdrop-filter: blur(12px);
+}
+
+/* INDIVIDUAL RESULT */
+.recommendation-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 18px 20px;
+
+    transition:
+        background 0.15s ease;
+
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* HOVER */
+.recommendation-item:hover {
+    background: #f7f9fc;
+}
+
+/* SONG TEXT */
+.recommendation-item span {
+
+    color: #1d3561;
+
+    font-size: 17px;
+
+    font-family: 'Inter', sans-serif;
+
+    font-weight: 500;
+}
+
+/* DOWNLOAD BUTTON */
+.popup-download-btn {
+
+    background: #1d3561;
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 10px 16px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease;
+}
+
+/* BUTTON HOVER */
+.popup-download-btn:hover {
+
+    background: #274a85;
+
+    transform: translateY(-1px);
+}

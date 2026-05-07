@@ -9,21 +9,75 @@
 </head>
 <body>
 
-<div style="font-family: Georgia, serif;"><h1>Oak Ridge Philharmonia - Sheet Music Repository</h1></div>
+<div
+    style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        margin-bottom: 50px;
+        width: 100%;
+    "
+>
 
+    <!-- LEFT SIDE -->
+    <div
+        style="
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        "
+    >
+
+        <img
+            style="
+                height: 150px;
+                width: auto;
+                object-fit: contain;
+                padding-right: 40px;
+            "
+            src="logo_alt.webp"
+            alt="Logo"
+            class="site-logo"
+        >
+
+        <h1
+            style="
+                margin: 0;
+                white-space: nowrap;">
+            Sheet Music Repository
+        </h1>
+    </div>
+    <!-- RIGHT SIDE -->
+    <div
+        class="search-area"
+        style="
+            flex: 1;
+            max-width: 1200px;
+            margin: 0;
+            margin-right: 75px;
+            "
+            >
+        <input
+            type="text"
+            id="searchBar"
+            placeholder="Search for a part..."
+            oninput="showRecommendations()"
+            onfocus="showRecommendations()"
+            autocomplete="off"
+            style="
+                width: 100%;
+                box-sizing: border-box;">
+        <div
+            id="recommendationPopup"
+            class="recommendation-popup"
+        ></div>
+    </div>
+</div>
 <!-- MUSIC_START -->
 
 
-<div class="search-area">
-    
-    <input
-    type="text"
-    id="searchBar"
-    placeholder="Search for a piece..."
-    oninput="showRecommendations()"
-    onfocus="showRecommendations()"
-    autocomplete="off"
->   
+ 
 
     <div id="recommendationPopup" class="recommendation-popup"></div>
 </div>

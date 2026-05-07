@@ -1,88 +1,156 @@
-body {
-    background-color: #f2f2f2;
-    font-family: Georgia, serif;
-    padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --white: #ffffff;
+    --grey: #e7e7e7;
+    --dark-blue: #10245c;
+    --light-blue: #426ba0;
+    --black: #000000;
 }
 
+/* PAGE */
 
-/* GRID LAYOUT */
+body {
+
+    background: var(--white);
+
+    color: var(--black);
+
+    font-family: "Trebuchet MS", sans-serif;
+
+    padding: 40px;
+
+    margin: 0;
+}
+
+/* HEADERS */
+
+h1,
+h2,
+.piece-block h2 {
+
+    font-family: "Alegreya SC", serif;
+
+    color: var(--dark-blue);
+
+    font-weight: 500;
+
+    letter-spacing: 1px;
+}
+
+/* GRID */
+
 .music-grid {
+
     display: grid;
 
-    /* 2 columns */
     grid-template-columns: 1fr 1fr;
 
-    gap: 40px;
+    gap: 45px;
 
     align-items: start;
 }
 
-/* EACH SONG BLOCK */
+/* SONG BLOCK */
+
 .piece-block {
-    background: #f2f2f2;
-    padding: 20px;
-    border-radius: 8px;
+
+    padding: 10px 4px;
+
+    background: transparent;
+
+    border: none;
+
+    box-shadow: none;
 }
 
-/* TITLE */
+/* SONG TITLE */
+
 .piece-block h2 {
-    color: #1d3561;
-    font-size: 32px;
-    font-variant: small-caps;
-    margin-bottom: 20px;
+
+    font-size: 34px;
+
+    margin-bottom: 18px;
 }
 
 /* LIST */
+
 .piece-block ul {
-    margin-left: 20px;
+
+    margin-left: 18px;
+
+    padding-left: 10px;
 }
 
 .piece-block li {
+
     margin-bottom: 12px;
 }
 
 /* LINKS */
+
 .piece-block a {
-    color: #1d3561;
-    font-size: 22px;
+
+    color: var(--dark-blue);
+
+    font-size: 20px;
+
     text-decoration: underline;
+
+    font-family: "Trebuchet MS", sans-serif;
+
+    transition:
+        color 0.15s ease,
+        opacity 0.15s ease;
 }
 
 .piece-block a:hover {
-    opacity: 0.7;
+
+    color: var(--light-blue);
+
+    opacity: 0.85;
 }
+
 /* SEARCH CONTAINER */
+
 .search-area {
+
     position: relative;
 
     max-width: 700px;
 
-    margin-bottom: 10px;
+    margin-bottom: 50px;
 
-    /* LEFT JUSTIFIED */
     margin-left: 0;
+
     margin-right: auto;
-    margin-top:75px;
 }
 
-/* MODERN SEARCH INPUT */
+/* MODERN SEARCH BAR */
+
 #searchBar {
+
     width: 100%;
 
-    padding: 16px 22px;
+    padding: 18px 24px;
 
     border: none;
+
     outline: none;
 
-    border-radius: 16px;
 
-    background: white;
+    border-radius: 18px;
+
+    background: var(--white);
+
+    color: var(--black);
 
     font-size: 18px;
-    font-family: 'Inter', sans-serif;
+
+    font-family: "Inter", sans-serif;
 
     box-shadow:
-        0 4px 20px rgba(0,0,0,0.08);
+        0px 6px 24px rgba(0,0,0,0.08);
 
     transition:
         box-shadow 0.2s ease,
@@ -90,45 +158,52 @@ body {
 }
 
 /* PLACEHOLDER */
+
 #searchBar::placeholder {
-    color: #999;
+
+    color: black;
 }
 
-/* FOCUS EFFECT */
+/* FOCUS */
+
 #searchBar:focus {
+
     box-shadow:
-        0 8px 28px rgba(29,53,97,0.18);
+        0 10px 30px rgba(16,36,92,0.18);
 
     transform: translateY(-1px);
 }
 
-/* RECOMMENDATION POPUP */
+/* SEARCH POPUP */
+
 .recommendation-popup {
 
     display: none;
 
     position: absolute;
 
-    top: 70px;
+    top: 72px;
+
     left: 0;
 
     width: 100%;
 
-    background: white;
+    background: rgba(255,255,255,0.96);
 
-    border-radius: 18px;
+    border-radius: 20px;
 
     overflow: hidden;
 
+    backdrop-filter: blur(12px);
+
     box-shadow:
-        0 10px 35px rgba(0,0,0,0.14);
+        0 12px 40px rgba(0,0,0,0.14);
 
     z-index: 1000;
-
-    backdrop-filter: blur(12px);
 }
 
-/* INDIVIDUAL RESULT */
+/* RECOMMENDATION ITEM */
+
 .recommendation-item {
 
     display: flex;
@@ -137,39 +212,39 @@ body {
 
     align-items: center;
 
-    gap: 20px;
+    gap: 18px;
 
     padding: 18px 20px;
 
     transition:
         background 0.15s ease;
-
-    border-bottom: 1px solid #f0f0f0;
 }
 
-/* HOVER */
+/* ITEM HOVER */
+
 .recommendation-item:hover {
-    background: #f7f9fc;
+
+    background: rgba(66,107,160,0.08);
 }
 
-/* SONG TEXT */
+/* RESULT TEXT */
+
 .recommendation-item span {
 
-    color: #1d3561;
+    color: var(--black);
+
+    font-family: "Trebuchet MS", sans-serif;
 
     font-size: 17px;
-
-    font-family: 'Inter', sans-serif;
-
-    font-weight: 500;
 }
 
 /* DOWNLOAD BUTTON */
+
 .popup-download-btn {
 
-    background: #1d3561;
+    background: var(--dark-blue);
 
-    color: white;
+    color: var(--white);
 
     text-decoration: none;
 
@@ -179,7 +254,11 @@ body {
 
     font-size: 14px;
 
+    font-family: "Inter", sans-serif;
+
     font-weight: 600;
+
+    white-space: nowrap;
 
     transition:
         background 0.15s ease,
@@ -187,9 +266,10 @@ body {
 }
 
 /* BUTTON HOVER */
+
 .popup-download-btn:hover {
 
-    background: #274a85;
+    background: var(--light-blue);
 
     transform: translateY(-1px);
 }

@@ -85,14 +85,6 @@ def generateHTML(grouped):
     recommendations = ""
 
     output = '''
-<div class="search-area">
-    <input
-        type="text"
-        id="searchBar"
-        placeholder="Search for a piece..."
-        oninput="showRecommendations()"
-        autocomplete="off"
-    >
 
     <div id="recommendationPopup" class="recommendation-popup"></div>
 </div>
